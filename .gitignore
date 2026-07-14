@@ -10,8 +10,8 @@ build/
 .cache/
 .temp/
 
-# Root production served frontend
-public/
+# frontend production builds
+frontend/dist/
 
 # Environment Variables
 .env

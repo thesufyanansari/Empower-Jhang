@@ -14,15 +14,14 @@ The repository is structured to separate concerns, optimize client bundle delive
 Empower Jhang/
 ├── frontend/                  # React Frontend Client (TypeScript + Vite)
 │   ├── public/                # Static assets (PWA manifests, images)
-│   ├── src/                   # Component and state architecture
-│   └── vite.config.ts         # Outputs production bundle to root "/public"
+│   ├── dist/                  # Built production React assets (ignored in Git)
+│   └── src/                   # Component and state architecture
 ├── backend/                   # Node.js + Express Backend Server
 │   ├── prisma/                # Database migrations & schemas
 │   ├── src/                   # Core controllers, middleware, and services
 │   ├── dist/                  # Output directory for production esbuild
 │   │   └── server.js          # Compiled & minified backend bundle (Startup File)
 │   └── package.json           # Backend dependency descriptors & builds
-├── public/                    # Built production React assets (generated on build)
 ├── uploads/                   # Local storage for all dynamic files (generated on startup)
 │   ├── profile/               # Member avatar photos
 │   ├── member-cards/          # Generated PVC PDF member cards
@@ -129,10 +128,9 @@ Follow these steps to deploy the entire ecosystem to a Hostinger Business Hostin
    npm run build:backend
    ```
 2. Compress the project folder into a ZIP file. **Crucial:** Exclude all `node_modules` folders to keep the size small. Ensure your zip file contains:
-   - `backend/` (including `dist/server.js`, `prisma/`, `package.json`)
-   - `frontend/` (excluding node_modules)
-   - `public/` (containing the built frontend files)
-   - `package.json` (root orchestrator)
+    - `backend/` (including `dist/server.js`, `prisma/`, `package.json`)
+    - `frontend/` (containing source code and compiled `dist/` folder)
+    - `package.json` (root orchestrator)
 
 ### Step 3: Upload and Extract Files
 1. In hPanel, go to **Files** -> **File Manager**.
@@ -173,9 +171,9 @@ Follow these steps to deploy the entire ecosystem to a Hostinger Business Hostin
 1. In hPanel, search for **Node.js** under the website dashboard.
 2. Click **Create Application** and configure it with the following parameters:
    - **Node.js Version**: Select the latest LTS version (Node 20+).
-   - **Application Root**: Set this to `backend` (relative to `public_html/`).
+   - **Application Root**: Set this to `/` (the root directory relative to `public_html/`).
    - **Application URL**: Select your target domain (e.g., `https://empowerjhang.org`).
-   - **Startup File**: Set this to `dist/server.js`.
+   - **Startup File**: Set this to `backend/dist/server.js`.
 3. Save the configurations and click **Start/Restart**.
 
 ### Step 6: Enable SSL (HTTPS)

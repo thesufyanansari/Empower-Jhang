@@ -217,7 +217,7 @@ app.use('/api/v1/roles', rolesRoutes);
 
 // Serve static React frontend files in production
 if (process.env.NODE_ENV === 'production') {
-  const publicPath = path.join(process.cwd(), '../public');
+  const publicPath = path.resolve(__dirname, '../../frontend/dist');
   app.use(express.static(publicPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) {
