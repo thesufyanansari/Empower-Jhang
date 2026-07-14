@@ -163,7 +163,10 @@ export const cardService = {
             ? user.profile_photo.substring(user.profile_photo.indexOf('/uploads'))
             : user.profile_photo;
 
-          const uploadPath = process.env.UPLOAD_PATH || path.join(process.cwd(), '../uploads');
+          const uploadPath = process.env.UPLOAD_PATH || 
+            (fs.existsSync(path.join(process.cwd(), 'uploads')) 
+              ? path.join(process.cwd(), 'uploads') 
+              : path.join(process.cwd(), '../uploads'));
           let absolutePhotoPath;
           if (cleanPath.startsWith('/uploads/')) {
             absolutePhotoPath = path.join(uploadPath, cleanPath.substring('/uploads/'.length));

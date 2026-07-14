@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import path from 'path';
+import fs from 'fs';
 
 // Logger & Cleanups
 import { logger } from './utils/logger.js';
@@ -168,7 +169,10 @@ app.get('/sitemap.xml', async (req, res, next) => {
 });
 
 // Serve static profile uploads from configured directory
-const uploadPath = process.env.UPLOAD_PATH || path.join(process.cwd(), '../uploads');
+const uploadPath = process.env.UPLOAD_PATH || 
+  (fs.existsSync(path.join(process.cwd(), 'uploads')) 
+    ? path.join(process.cwd(), 'uploads') 
+    : path.join(process.cwd(), '../uploads'));
 app.use('/uploads', express.static(uploadPath));
 
 // OpenAPI specification file
@@ -216,8 +220,11 @@ app.use('/api/v1/learning', learningRoutes);
 app.use('/api/v1/roles', rolesRoutes);
 
 // Serve static React frontend files in production
-if (process.env.NODE_ENV === 'production') {
-  const publicPath = path.resolve(__dirname, '../../frontend/dist');
+const publicPath = fs.existsSync(path.join(process.cwd(), 'frontend/dist'))
+  ? path.join(process.cwd(), 'frontend/dist')
+  : path.join(process.cwd(), '../frontend/dist');
+
+if (fs.existsSync(publicPath)) {
   app.use(express.static(publicPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) {

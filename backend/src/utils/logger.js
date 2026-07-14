@@ -1,6 +1,7 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
+import fs from 'fs';
 
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -9,7 +10,14 @@ const logFormat = winston.format.combine(
   })
 );
 
-const logsDirectory = process.env.LOG_PATH || path.join(process.cwd(), '../logs');
+const logsDirectory = process.env.LOG_PATH || 
+  (fs.existsSync(path.join(process.cwd(), 'backend/logs'))
+    ? path.join(process.cwd(), 'backend/logs')
+    : path.join(process.cwd(), 'logs'));
+
+if (!fs.existsSync(logsDirectory)) {
+  fs.mkdirSync(logsDirectory, { recursive: true });
+}
 
 export const logger = winston.createLogger({
   format: logFormat,

@@ -2,7 +2,10 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadPath = process.env.UPLOAD_PATH || path.join(process.cwd(), '../uploads');
+const uploadPath = process.env.UPLOAD_PATH || 
+  (fs.existsSync(path.join(process.cwd(), 'uploads')) 
+    ? path.join(process.cwd(), 'uploads') 
+    : path.join(process.cwd(), '../uploads'));
 
 // Ensure directories exist
 const profileDir = path.join(uploadPath, 'profile');
