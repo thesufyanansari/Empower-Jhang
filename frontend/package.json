@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.18.1",
     "date-fns": "^4.4.0",
+    "empower-jhang-workspace": "file:..",
     "framer-motion": "^12.42.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
