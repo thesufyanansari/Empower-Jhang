@@ -1,0 +1,360 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum District {
+  Jhang
+  Shorkot
+  EighteenHazari @map("18 Hazari")
+  AhmadpurSial  @map("Ahmadpur Sial")
+}
+
+enum Platform {
+  Facebook
+  WhatsApp
+  YouTube
+  Discord
+  Telegram
+  Instagram
+  LinkedIn
+  Website
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  full_name     String
+  email         String   @unique
+  password_hash String
+  role          String   @default("Editor")
+  profile_photo String?
+  status        String   @default("Active")
+  last_login    DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  announcements Announcement[]
+
+  @@index([email])
+  @@index([status])
+}
+
+model CommunityMember {
+  id                    String      @id @default(uuid())
+  member_id             String      @unique
+  full_name             String
+  email                 String      @unique
+  whatsapp              String      @unique
+  district              District
+  education             String
+  profession            String
+  skills                String      @db.Text
+  gender                String
+  date_of_birth         String
+  profile_photo         String?
+  bio                   String      @db.Text
+  status                String      @default("Pending")
+  registration_date     DateTime    @default(now())
+  email_verified        Boolean     @default(true)
+  member_card_path      String?
+  qr_code_path          String?
+  is_volunteer          Boolean     @default(false)
+  volunteer_status      String?     // Pending, Approved, Rejected, None
+  volunteer_department  String?
+  volunteer_role        String?
+  volunteer_notes       String?     @db.Text
+  is_mentor             Boolean     @default(false)
+  mentor_status         String?     // Pending, Approved, Rejected, None
+  
+  // Social Links
+  behance               String?
+  dribbble              String?
+  youtube               String?
+  website               String?
+  facebook              String?
+  instagram             String?
+  linkedin              String?
+  github                String?
+  portfolio             String?
+
+  // Volunteer Questionnaire
+  volunteer_experience        String?     @db.Text
+  volunteer_availability      String?
+  volunteer_motivation        String?     @db.Text
+  volunteer_leadership        String?     @db.Text
+  volunteer_emergency_contact String?
+  volunteer_interests         String?
+  volunteer_previous_work     String?     @db.Text
+  volunteer_time_weekly       String?
+  volunteer_value_bring       String?     @db.Text
+  volunteer_references        String?     @db.Text
+
+  // Mentor Questionnaire
+  mentor_experience_years     String?
+  mentor_industry             String?
+  mentor_teaching_exp         String?     @db.Text
+  mentor_mentoring_exp        String?     @db.Text
+  mentor_specializations      String?     @db.Text // Comma separated tracks
+  mentor_availability         String?
+  mentor_languages            String?
+  mentor_achievements         String?     @db.Text
+  mentor_certifications       String?     @db.Text
+  mentor_motivation           String?     @db.Text
+  mentor_style                String?     @db.Text
+
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
+  deleted_at            DateTime?
+
+  member_card           MemberCard?
+  uploads               Upload[]
+  roleId                String?     
+  role                  Role?       @relation(fields: [roleId], references: [id])
+
+  @@index([member_id])
+  @@index([email])
+  @@index([whatsapp])
+  @@index([district])
+  @@index([status])
+  @@index([registration_date])
+}
+
+model EmailOtp {
+  id          Int       @id @default(autoincrement())
+  email       String
+  otp         String
+  purpose     String    @default("Verification")
+  verified    Boolean   @default(false)
+  attempts    Int       @default(0)
+  expires_at  DateTime
+  verified_at DateTime?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime  @default(now())
+
+  @@index([email])
+  @@index([expires_at])
+}
+
+model MemberCounter {
+  id Int @id @default(autoincrement())
+}
+
+model Announcement {
+  id           String    @id @default(uuid())
+  title        String
+  description  String    @db.Text
+  button_text  String?
+  button_link  String?
+  status       String    @default("Published")
+  published_at DateTime  @default(now())
+  created_by   String
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+
+  admin        Admin     @relation(fields: [created_by], references: [id], onDelete: Restrict)
+
+  @@index([status])
+}
+
+model CommunityLink {
+  id            Int       @id @default(autoincrement())
+  platform      Platform
+  title         String
+  url           String
+  icon          String?
+  display_order Int       @default(0)
+  status        String    @default("Active")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  @@index([display_order])
+}
+
+model MemberCard {
+  id           String          @id @default(uuid())
+  member_id    String          @unique
+  card_number  String          @unique
+  png_path     String?
+  pdf_path     String?
+  generated_at DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
+
+  member       CommunityMember @relation(fields: [member_id], references: [id], onDelete: Cascade)
+}
+
+model Upload {
+  id            String          @id @default(uuid())
+  member_id     String
+  file_name     String
+  original_name String
+  file_type     String
+  file_size     Int
+  file_path     String
+  uploaded_at   DateTime        @default(now())
+
+  member        CommunityMember @relation(fields: [member_id], references: [id], onDelete: Cascade)
+}
+
+model WebsiteSetting {
+  id               Int      @id @default(1)
+  site_name        String
+  tagline          String
+  logo             String?
+  favicon          String?
+  contact_email    String
+  contact_phone    String
+  facebook         String?
+  youtube          String?
+  whatsapp         String?
+  instagram        String?
+  linkedin         String?
+  address          String   @db.Text
+  footer_text      String?
+  maintenance_mode Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  user_type  String
+  user_id    String
+  action     String
+  module     String
+  ip_address String?
+  device     String?
+  browser    String?
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+}
+
+model SystemLog {
+  id          Int      @id @default(autoincrement())
+  level       String
+  message     String   @db.Text
+  stack_trace String?  @db.Text
+  created_at  DateTime @default(now())
+}
+
+model SkillCategory {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  display_order Int      @default(0)
+  status        String   @default("Active") // Active, Disabled
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  skills        Skill[]
+}
+
+model Skill {
+  id            String        @id @default(uuid())
+  name          String
+  categoryId    String
+  display_order Int           @default(0)
+  status        String        @default("Active") // Active, Disabled
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  category      SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([name, categoryId])
+}
+
+model Course {
+  id            String   @id @default(uuid())
+  thumbnail     String?
+  title         String
+  description   String   @db.Text
+  category      String
+  instructor    String
+  duration      String
+  difficulty    String
+  youtube_video String
+  notes         String?  @db.Text
+  downloads     String?  @db.Text
+  status        String   @default("Active")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model Resource {
+  id            String   @id @default(uuid())
+  title         String
+  description   String   @db.Text
+  type          String
+  category      String
+  url           String?
+  download_path String?
+  status        String   @default("Active")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+model Role {
+  id               String           @id @default(uuid())
+  name             String           @unique
+  key              String           @unique
+  category         String           // Leadership, Department Leads, Community Roles, Members
+  display_order    Int
+  status           String           @default("Active")
+  
+  badge            RoleBadge?
+  theme            RoleTheme?
+  card             RoleCard?
+  permissions      RolePermission[]
+  members          CommunityMember[]
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@index([key])
+  @@index([status])
+}
+
+model RoleBadge {
+  id               String   @id @default(uuid())
+  roleId           String   @unique
+  role             Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  badge_name       String
+  icon_name        String
+  svg_template     String   @db.Text
+}
+
+model RoleTheme {
+  id               String   @id @default(uuid())
+  roleId           String   @unique
+  role             Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  gradient_css     String   // CSS gradient string
+  accent_color     String   // Hex or tailwind color
+  profile_header   String   // Background cover image/style
+  border_style     String   // CSS border class
+  bg_pattern       String   // Pattern details
+  verification_style String // Custom styling for checkmark
+}
+
+model RoleCard {
+  id               String   @id @default(uuid())
+  roleId           String   @unique
+  role             Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  design_template  String   // standard, volunteer, mentor, leadership
+  badge_style      String   // standard, premium
+  accent_color     String   // hex or card theme
+}
+
+model RolePermission {
+  id               String   @id @default(uuid())
+  roleId           String
+  role             Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission       String   // e.g. "view_admin", "edit_members"
+
+  @@unique([roleId, permission])
+}
+
+

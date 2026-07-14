@@ -1,0 +1,183 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Empower Jhang Community Portal API Specification",
+    "description": "Production-ready REST API documentation mapping all public and administrative actions for Empower Jhang.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Version 1 API Endpoint base path"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Retrieve server health status",
+        "responses": {
+          "200": {
+            "description": "Server is operational and healthy"
+          }
+        }
+      }
+    },
+    "/settings": {
+      "get": {
+        "summary": "Retrieve public website configurations",
+        "responses": {
+          "200": {
+            "description": "Site configurations loaded successfully"
+          }
+        }
+      }
+    },
+    "/community-links": {
+      "get": {
+        "summary": "Retrieve active community networking platforms",
+        "responses": {
+          "200": {
+            "description": "Networking links loaded successfully"
+          }
+        }
+      }
+    },
+    "/send-otp": {
+      "post": {
+        "summary": "Dispatch a verification OTP code to user email address",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "student@example.com"
+                  }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP dispatched successfully"
+          }
+        }
+      }
+    },
+    "/verify-otp": {
+      "post": {
+        "summary": "Verify 6-digit email OTP verification code",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "code": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "example": "123456"
+                  }
+                },
+                "required": ["email", "code"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification passed successfully"
+          }
+        }
+      }
+    },
+    "/register-member": {
+      "post": {
+        "summary": "Register a new community member profile with photo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "full_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "whatsapp": { "type": "string" },
+                  "district": { "type": "string", "enum": ["Jhang", "Shorkot", "18 Hazari", "Ahmadpur Sial"] },
+                  "education": { "type": "string" },
+                  "profession": { "type": "string" },
+                  "skills": { "type": "string" },
+                  "gender": { "type": "string" },
+                  "date_of_birth": { "type": "string" },
+                  "bio": { "type": "string" },
+                  "photo": { "type": "string", "format": "binary" }
+                },
+                "required": ["full_name", "email", "whatsapp", "district", "education", "profession"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Member registered successfully"
+          }
+        }
+      }
+    },
+    "/member/{memberId}": {
+      "get": {
+        "summary": "Fetch public member profile info",
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile details loaded successfully"
+          }
+        }
+      }
+    },
+    "/admin/login": {
+      "post": {
+        "summary": "Administrator password-based login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin session established successfully"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+# Empower Jhang - Production Git Ignore Rules
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Builds & Outputs
+dist/
+build/
+.cache/
+.temp/
+
+# Root production served frontend
+public/
+
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+
+# Dynamic Log Output Files
+logs/
+*.log
+
+# Dynamic Upload Files & Database backups
+uploads/
+backups/
+
+# System / IDE Configuration Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
